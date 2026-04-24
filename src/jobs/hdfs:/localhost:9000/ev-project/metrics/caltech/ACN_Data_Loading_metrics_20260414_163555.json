@@ -1,0 +1,45 @@
+{
+  "job_name": "ACN_Data_Loading",
+  "start_time": "2026-04-14T16:33:17.515911",
+  "end_time": "2026-04-14T16:35:55.987697",
+  "duration_seconds": 158.471786,
+  "stages": {
+    "create_spark_session": {
+      "duration_seconds": 18.434903860092163,
+      "timestamp": "2026-04-14T16:33:35.950869",
+      "metadata": {}
+    },
+    "load_raw_data": {
+      "duration_seconds": 96.4962887763977,
+      "timestamp": "2026-04-14T16:35:12.448789",
+      "metadata": {
+        "load_duration": 96.48309016227722
+      }
+    },
+    "data_quality_checks": {
+      "duration_seconds": 43.527180671691895,
+      "timestamp": "2026-04-14T16:35:55.978667",
+      "metadata": {
+        "total_records": 31424,
+        "duplicate_sessions": 0,
+        "null_counts": {
+          "sessionID": 0,
+          "stationID": 0,
+          "connectionTime": 0,
+          "doneChargingTime": 2055
+        },
+        "partition_count": 34,
+        "error": "[NOT_COLUMN_OR_STR] Argument `col` should be a Column or str, got float."
+      }
+    }
+  },
+  "spark_metrics": {
+    "app_id": "local-1776184410568",
+    "app_name": "ACN_Data_Loading",
+    "spark_version": "3.5.8",
+    "default_parallelism": 4,
+    "executor_memory": "4g",
+    "shuffle_partitions": "200"
+  },
+  "error": "max() takes 1 positional argument but 2 were given"
+}

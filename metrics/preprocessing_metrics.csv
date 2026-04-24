@@ -1,0 +1,5 @@
+timestamp,app_name,original_rows,final_rows,read_time,transform_time,write_time,total_time,rows_per_second,validation_passed
+2026-04-17T03:08:14.672500,ACN_Caltech_Preprocessing_Local,31424,26042,15.12,9.34,3.86,100.43,313,False
+2026-04-17T03:48:57.423001,ACN_Caltech_Preprocessing_Local,31424,26042,14.82,13.70,3.84,99.90,315,False
+2026-04-17T03:56:30.581375,ACN_Caltech_Preprocessing_Local,31424,24659,13.42,9.06,3.30,76.24,412,False
+2026-04-18T09:37:18.456405,ACN_Caltech_Preprocessing_Local,31424,24659,18.76,11.84,3.62,98.12,320,False

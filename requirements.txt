@@ -1,0 +1,8 @@
+pyspark==4.1.1
+pandas==3.0.1
+acnportal==0.3.3
+PyYAML==6.0.3
+python-dotenv==1.0.1
+docopt-0.6.2 
+hdfs-2.7.3
+seaborn-0.13.2

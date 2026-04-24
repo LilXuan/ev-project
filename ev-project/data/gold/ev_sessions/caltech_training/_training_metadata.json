@@ -1,0 +1,71 @@
+{
+  "timestamp": "2026-04-18T15:05:21.896447",
+  "app_name": "ACN_Caltech_Preprocessing_Local",
+  "dataset_size": 24659,
+  "train_rows": 19857,
+  "test_rows": 4802,
+  "training_time_sec": 466.35429668426514,
+  "train_metrics": {
+    "rmse_log": 0.08220019945061854,
+    "mse_log": 0.00675687278972147,
+    "mae_log": 0.057166961045930206,
+    "r2_log": 0.986481977621357,
+    "mae_kwh": 0.46942892008896486,
+    "mse_kwh": 0.6051992098236573,
+    "rmse_kwh": 0.777945505690249,
+    "r2_kwh": 0.9773084548356388,
+    "rows": 19857.0
+  },
+  "test_metrics": {
+    "rmse_log": 0.5050951772499838,
+    "mse_log": 0.25512113808119247,
+    "mae_log": 0.35819007830116495,
+    "r2_log": 0.4723380887175115,
+    "mae_kwh": 2.779892674600502,
+    "mse_kwh": 16.738329542254377,
+    "rmse_kwh": 4.091250364161839,
+    "r2_kwh": 0.3661924978649238,
+    "rows": 4802.0
+  },
+  "differences": {
+    "diff_mae_kwh": 0.11019267460050175,
+    "diff_rmse_kwh": 0.1461503641618389,
+    "pct_diff_mae": 4.127530231880052,
+    "pct_diff_rmse": 3.704604804994523
+  },
+  "validation_results": {
+    "mean_absolute_error": 2.779892674600502,
+    "rmse_error": 4.091250364161839,
+    "mean_percentage_error": 64.24875527198036,
+    "outliers_count": 172.0,
+    "outlier_percentage": 3.5818408996251563,
+    "total_rows": 4802.0,
+    "threshold_kwh": 10.0
+  },
+  "config": {
+    "train_fraction": 0.8,
+    "seed": 42,
+    "max_depth": 10,
+    "max_iter": 100,
+    "feature_cols": [
+      "hour",
+      "day_of_week",
+      "month",
+      "season",
+      "duration",
+      "charging_duration",
+      "charging_duration_log",
+      "hour_sin",
+      "hour_cos",
+      "day_of_year",
+      "week_of_year",
+      "is_holiday",
+      "lag_1_log",
+      "lag_2_log",
+      "lag_3_log",
+      "rolling_mean_3_log",
+      "rolling_mean_5_log"
+    ],
+    "target_col": "kWhDelivered_log"
+  }
+}
