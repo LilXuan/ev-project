@@ -163,7 +163,7 @@ def save_training_metrics_csv(
         for record in records:
             writer.writerow(record)
     
-    logger.info(f"✅ Training metrics saved to {metrics_log_path}")
+    logger.info(f" Training metrics saved to {metrics_log_path}")
 
 
 def save_model_predictions(predictions_df, output_path: str, logger, mode: str = "overwrite"):
@@ -175,7 +175,7 @@ def save_model_predictions(predictions_df, output_path: str, logger, mode: str =
             predictions_df = predictions_df.repartition(4)
         
         predictions_df.write.mode(mode).parquet(output_path)
-        logger.info(f"✅ Predictions saved to {output_path}")
+        logger.info(f" Predictions saved to {output_path}")
         
         count = predictions_df.count()
         logger.info(f"   Saved {count:,} prediction rows")
@@ -209,7 +209,7 @@ def main(config_module: str):
         if getattr(cfg, 'USE_PAPER_SUBSET', False):
             target_count = getattr(cfg, 'PAPER_SUBSET_SIZE', 14496)
             fraction = target_count / total_rows
-            logger.info(f"⚠️ Subsetting to paper's size: {target_count:,} sessions")
+            logger.info(f" Subsetting to paper's size: {target_count:,} sessions")
             df = df.sample(fraction=fraction, seed=cfg.TRAIN_CONFIG.get('seed', 42))
             df = df.cache()
             logger.info(f"   After subset: {df.count():,} sessions")
@@ -318,11 +318,11 @@ def main(config_module: str):
         logger.info("\n" + "=" * 70)
         logger.info("TRAINING JOB COMPLETED SUCCESSFULLY")
         logger.info("=" * 70)
-        logger.info(f"\n📊 FINAL SUMMARY:")
+        logger.info(f"\n FINAL SUMMARY:")
         logger.info(f"  Dataset: {training_results['dataset_size']:,} sessions")
         logger.info(f"  Train: {training_results['train_size']:,} | Test: {training_results['test_size']:,}")
         logger.info(f"  Training time: {training_results['training_time']:.2f}s")
-        logger.info(f"\n📊 TEST SET PERFORMANCE (kWh):")
+        logger.info(f"\n TEST SET PERFORMANCE (kWh):")
         logger.info(f"  MAE: {test_metrics['mae_kwh']:.4f}")
         logger.info(f"  RMSE: {test_metrics['rmse_kwh']:.4f}")
         logger.info(f"  R²: {test_metrics['r2_kwh']:.4f}")

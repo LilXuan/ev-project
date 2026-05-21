@@ -5,10 +5,14 @@ from pathlib import Path
 APP_NAME = "ACN_Caltech_Preprocessing_Local"
 
 # Input: Parquet from silver layer (local path or HDFS)
-INPUT_PATH = "hdfs://localhost:9000/ev-project/data/silver/ev_sessions/caltech/*"
+# INPUT_PATH = "hdfs://localhost:9000/ev-project/data/silver/ev_sessions/caltech/*"
+INPUT_PATH = "hdfs://localhost:9000/data/benchmark/acn/500mb/"
+
 
 # Output: Processed data ready for analysis
-OUTPUT_PATH = "hdfs://localhost:9000/ev-project/data/gold/ev_sessions/caltech_processed"
+# OUTPUT_PATH = "hdfs://localhost:9000/ev-project/data/gold/ev_sessions/caltech_processed"
+OUTPUT_PATH = "hdfs://localhost:9000/ev-project/data/gold/500mb"
+
 
 # Training output paths
 TRAINING_OUTPUT_PATH = "hdfs://localhost:9000/ev-project/data/gold/ev_sessions/caltech_training"
@@ -62,9 +66,30 @@ TRAIN_CONFIG = {
 USE_PAPER_SUBSET = False  # Set to True to test with 14,496 sessions
 PAPER_SUBSET_SIZE = 14496
 
+
+CHECKPOINT_PATH = "/tmp/acn_checkpoint"
+NUM_PARTITIONS = 8
+
+
 SPARK_CONF = {
-    "spark.executor.memory": "4g",  # Tăng lên cho training
+    "spark.executor.memory": "1g",  # Tăng lên cho training
     "spark.executor.cores": "2",
-    "spark.sql.shuffle.partitions": "20",  # Tăng cho training
-    "spark.driver.memory": "2g"
+    "spark.default.parallelism": "8",
+    "spark.sql.shuffle.partitions": "8",# Tăng cho training
+    "spark.driver.memory": "1g",
+    "spark.metrics.namespace": "driver",
+    
+    # 1. Bật Prometheus Servlet trên port 4040
+    "spark.ui.prometheus.enabled": "true",
+    "spark.metrics.conf.*.sink.prometheusServlet.class": "org.apache.spark.metrics.sink.PrometheusServlet",
+    "spark.metrics.conf.*.sink.prometheusServlet.path": "/metrics/prometheus",
+    
+    # 2. Bật JMX Sink để JMX Exporter (port 7071) có thể thấy dữ liệu Spark
+    "spark.metrics.conf.*.sink.jmx.class": "org.apache.spark.metrics.sink.JmxSink",
+    
+    # 3. Kích hoạt các nguồn dữ liệu (Sources) - NẾU THIẾU SẼ KHÔNG CÓ JOB METRICS
+    "spark.metrics.conf.*.source.jvm.class": "org.apache.spark.metrics.source.JvmSource",
+    "spark.metrics.conf.*.source.DAGSchedulerSource.class": "org.apache.spark.metrics.source.DAGSchedulerSource",
+    "spark.metrics.conf.*.source.BlockManagerSource.class": "org.apache.spark.metrics.source.BlockManagerSource",
+    "spark.metrics.conf.*.source.ExecutorSource.class": "org.apache.spark.metrics.source.ExecutorSource"
 }

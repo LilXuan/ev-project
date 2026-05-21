@@ -52,6 +52,10 @@ def main(config_module: str):
         logger.info(f"Reading data from {cfg.INPUT_PATH}")
         read_start = time.time()
         df = spark.read.parquet(cfg.INPUT_PATH)
+        # 🔥 QUAN TRỌNG: đảm bảo có nhiều task
+        df = df.repartition(cfg.NUM_PARTITIONS)
+        df.cache()
+        df.count()  # materialize cache
         original_count = df.count()
         original_cols = len(df.columns)
         read_time = time.time() - read_start
@@ -104,7 +108,15 @@ def main(config_module: str):
         # Write output
         logger.info(f"Writing to {cfg.OUTPUT_PATH}")
         write_start = time.time()
-        df_transformed.write.mode("overwrite").parquet(cfg.OUTPUT_PATH)
+        df_transformed.write.mode("overwrite").option("maxRecordsPerFile", 500000).parquet(cfg.OUTPUT_PATH)
+        logger.info("Holding job for metrics scraping...")
+        # time.sleep(600)
+        logger.info("Starting executor keep-alive jobs...")
+        keep_executors_alive(spark)
+        # giữ app sống để scrape metrics
+        time.sleep(600)
+        
+        
         write_time = time.time() - write_start
         
         # Final counts
@@ -200,10 +212,32 @@ def main(config_module: str):
     
     finally:
         if 'spark' in locals():
+            time.sleep(600)
             spark.stop()
             logger.info("Spark session stopped")
 
+from pyspark.sql.functions import rand
+import threading
 
+def keep_executors_alive(spark, interval=10):
+    """
+    Run dummy Spark jobs to keep executors alive and generate metrics
+    """
+    def run():
+        while True:
+            try:
+                spark.range(1000000) \
+                    .repartition(8) \
+                    .select(rand()) \
+                    .count()
+                time.sleep(interval)
+            except Exception:
+                break
+
+    t = threading.Thread(target=run, daemon=True)
+    t.start()
+    
+    
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: spark-submit src/jobs/acn_processing_data.py <config_module>")
