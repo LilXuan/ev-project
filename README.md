@@ -21,10 +21,11 @@ This project focuses on stimulating a data scale up processing pipeline.
 - Mornitoring followed 3 layers: OS metrics, Spark metrics, and applications metrics
 
 ## Current Progress
-
+- Collect metrics and visuallizing dashboard
+- Expand monitoring dashboards for Spark executor and JVM metrics
+- Analyze and explain results
 
 ## Future Improvements
-- Expand monitoring dashboards for Spark executor and JVM metrics
 - Add containerized deployment using Docker
 - Explore workflow automation and CI/CD integration
 
