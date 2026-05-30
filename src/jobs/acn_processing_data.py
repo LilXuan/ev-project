@@ -1,79 +1,153 @@
+# src/jobs/acn_processing_data.py
 import sys
+import os
 import importlib
 import json
 import time
+import csv
+import threading
 from datetime import datetime
 from typing import Dict, Any
+from pyspark.sql.functions import rand
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from src.utils.spark import create_spark
 from src.utils.logger import get_logger
 from src.transforms.acn import run_pipeline
 from src.transforms.acn_validation import run_all_validations, log_validation_results
 
 
-def save_processing_metadata(output_path: str, metadata: Dict[str, Any], logger):
-    """Save processing metadata to JSON file"""
+def save_metrics(cfg, metrics: Dict[str, Any], logger):
+    """
+    Lưu trữ metrics đồng bộ theo cấu trúc của loading và scaling:
+    - results/processing/raw_metrics/*.json
+    - results/processing/processing_metrics.csv
+    """
     try:
-        # Try HDFS first, fallback to local
-        metadata_path = f"{output_path}/_metadata.json"
-        
-        # For local filesystem
-        import os
-        local_path = metadata_path.replace("hdfs://localhost:9000", "")
-        os.makedirs(os.path.dirname(local_path), exist_ok=True)
-        
-        with open(local_path, 'w') as f:
-            json.dump(metadata, f, indent=2, default=str)
-        
-        logger.info(f"Metadata saved to {local_path}")
+        result_dir = cfg.RESULT_DIR
+        raw_dir = os.path.join(result_dir, "raw_metrics")
+        os.makedirs(raw_dir, exist_ok=True)
+
+        # 1. Lưu file JSON chi tiết cấu hình và kết quả validation
+        json_file = os.path.join(raw_dir, f"{cfg.APP_NAME}.json")
+        with open(json_file, "w") as f:
+            json.dump(metrics, f, indent=4, default=str)
+        logger.info(f"Detailed processing metadata successfully saved to JSON: {json_file}")
+
+        # 2. Lưu file CSV tổng hợp phục vụ so sánh và vẽ biểu đồ hiệu năng pipeline ML
+        csv_file = cfg.METRICS_LOG
+        file_exists = os.path.isfile(csv_file)
+
+        with open(csv_file, "a", newline="") as f:
+            writer = csv.writer(f)
+
+            if not file_exists:
+                writer.writerow([
+                    "timestamp",
+                    "experiment",
+                    "dataset_size_mb",
+                    "original_rows",
+                    "final_rows",
+                    "rows_removed",
+                    "pct_rows_retained",
+                    "original_columns",
+                    "final_columns",
+                    "read_time_sec",
+                    "transform_time_sec",
+                    "validation_time_sec",
+                    "write_time_sec",
+                    "total_time_sec",
+                    "throughput_rows_per_sec",
+                    "validation_passed"
+                ])
+
+            writer.writerow([
+                metrics["timestamp"],
+                metrics["experiment"],
+                metrics["dataset_size_mb"],
+                metrics["metrics"]["original_rows"],
+                metrics["metrics"]["final_rows"],
+                metrics["metrics"]["rows_removed"],
+                round(metrics["metrics"]["pct_rows_retained"], 2),
+                metrics["metrics"]["original_columns"],
+                metrics["metrics"]["final_columns"],
+                round(metrics["timing"]["read_time_seconds"], 3),
+                round(metrics["timing"]["transform_time_seconds"], 3),
+                round(metrics["timing"]["validation_time_seconds"], 3),
+                round(metrics["timing"]["write_time_seconds"], 3),
+                round(metrics["timing"]["total_time_seconds"], 3),
+                round(metrics["throughput_rows_per_second"], 2),
+                metrics["validation_passed"]
+            ])
+        logger.info(f"Summary metrics successfully appended to CSV: {csv_file}")
+
     except Exception as e:
-        logger.warning(f"Could not save metadata: {e}")
+        logger.error(f"Failed to save metrics under unified structure: {str(e)}", exc_info=True)
+
+
+def keep_executors_alive(spark, interval=10):
+    """Run dummy Spark jobs to keep executors alive and generate metrics"""
+    def run():
+        while True:
+            try:
+                spark.range(1000000) \
+                    .repartition(8) \
+                    .select(rand()) \
+                    .count()
+                time.sleep(interval)
+            except Exception:
+                break
+
+    t = threading.Thread(target=run, daemon=True)
+    t.start()
 
 
 def main(config_module: str):
     """Main processing job"""
-    
-    # Load config
+    # Load config động dựa trên tham số CLI truyền vào
     cfg = importlib.import_module(config_module)
     logger = get_logger(cfg.APP_NAME)
     
-    # Start timing
+    # Kích hoạt đo lường thời gian toàn cục của Job
     job_start_time = time.time()
     
     try:
-        # Initialize Spark
         logger.info("=" * 70)
-        logger.info(f"Starting {cfg.APP_NAME}")
+        logger.info(f"Starting Processing Job: {cfg.APP_NAME}")
         logger.info("=" * 70)
         
+        # Khởi tạo Spark Session
         spark = create_spark(cfg.APP_NAME, getattr(cfg, 'SPARK_CONF', {}))
         
-        # Read input data
-        logger.info(f"Reading data from {cfg.INPUT_PATH}")
+        # ==========================================
+        # GIAI ĐOẠN 1: ĐỌC DỮ LIỆU ĐẦU VÀO (PARQUET)
+        # ==========================================
+        logger.info(f"Reading parquet data from {cfg.INPUT_PATH}")
         read_start = time.time()
         df = spark.read.parquet(cfg.INPUT_PATH)
-        # 🔥 QUAN TRỌNG: đảm bảo có nhiều task
+        
+        # Đồng bộ repartition tối ưu hóa tải trọng xử lý song song
         df = df.repartition(cfg.NUM_PARTITIONS)
         df.cache()
-        df.count()  # materialize cache
+        df.count()  # Thực hiện Action để load cứng dữ liệu vào cache RAM
+        
         original_count = df.count()
         original_cols = len(df.columns)
         read_time = time.time() - read_start
         
         logger.info(f"Loaded {original_count:,} rows, {original_cols} columns in {read_time:.2f}s")
         
-        # Show sample
         logger.info("Sample data (first 2 rows):")
         df.show(2, truncate=False)
         
-        # Save before state for validation
         df_before = df
         
-        # Run transformation pipeline
+        # ==========================================
+        # GIAI ĐOẠN 2: THỰC THI PIPELINE BIẾN ĐỔI (FEATURE ENGINEERING)
+        # ==========================================
         logger.info("Starting transformation pipeline...")
         transform_start = time.time()
         
-        # Prepare config for pipeline
         pipeline_config = {
             'features': getattr(cfg, 'FEATURES', None),
             'critical_cols': getattr(cfg, 'CRITICAL_COLS', None),
@@ -84,55 +158,58 @@ def main(config_module: str):
         
         df_transformed, metadata = run_pipeline(df, pipeline_config)
         transform_time = time.time() - transform_start
-        
         logger.info(f"Transformation completed in {transform_time:.2f}s")
         
-        # Run validations
-        logger.info("Running validations...")
+        # ==========================================
+        # GIAI ĐOẠN 3: XÁC THỰC TOÀN VẸN DỮ LIỆU (VALIDATION)
+        # ==========================================
+        logger.info("Running validation checks...")
         validation_start = time.time()
         validation_results = run_all_validations(df_before, df_transformed, pipeline_config)
         validation_time = time.time() - validation_start
         
-        # Log validation results
         critical_issues = log_validation_results(validation_results, logger)
         
-        # Optional: fail job if critical issues found
         if critical_issues and getattr(cfg, 'FAIL_ON_VALIDATION_ERROR', False):
             raise ValueError(f"Validation failed with critical issues: {critical_issues}")
         
-        # Repartition if needed
         if getattr(cfg, 'NUM_PARTITIONS', None):
-            logger.info(f"Repartitioning to {cfg.NUM_PARTITIONS} partitions")
+            logger.info(f"Repartitioning transformed data to {cfg.NUM_PARTITIONS} partitions")
             df_transformed = df_transformed.repartition(cfg.NUM_PARTITIONS)
         
-        # Write output
-        logger.info(f"Writing to {cfg.OUTPUT_PATH}")
+        # ==========================================
+        # GIAI ĐOẠN 4: GHI DỮ LIỆU ĐẦU RA (GOLD LAYER) & GIỮ APP ĐỂ SCRAPE
+        # ==========================================
+        logger.info(f"Writing output parquet to {cfg.OUTPUT_PATH}")
         write_start = time.time()
         df_transformed.write.mode("overwrite").option("maxRecordsPerFile", 500000).parquet(cfg.OUTPUT_PATH)
-        logger.info("Holding job for metrics scraping...")
-        # time.sleep(600)
+        
         logger.info("Starting executor keep-alive jobs...")
         keep_executors_alive(spark)
-        # giữ app sống để scrape metrics
-        time.sleep(600)
         
+        logger.info("Holding job for 600 seconds to allow complete Prometheus/JMX metrics scraping...")
+        time.sleep(600)  # Giữ session sống phục vụ hệ thống giám sát tải Prometheus
         
         write_time = time.time() - write_start
         
-        # Final counts
         final_count = df_transformed.count()
         final_cols = len(df_transformed.columns)
         
-        # Calculate job metrics
         job_end_time = time.time()
         total_time = job_end_time - job_start_time
         
-        # Prepare job summary
+        # ==========================================
+        # GIAI ĐOẠN 5: ĐÓNG GÓI VÀ LƯU METRICS ĐỒNG BỘ
+        # ==========================================
         job_summary = {
             "app_name": cfg.APP_NAME,
+            "experiment": cfg.APP_NAME,
             "timestamp": datetime.now().isoformat(),
+            "dataset_size_mb": getattr(cfg, 'DATASET_SIZE_MB', 1024),
             "input_path": cfg.INPUT_PATH,
             "output_path": cfg.OUTPUT_PATH,
+            "validation_passed": len(critical_issues) == 0,
+            "throughput_rows_per_second": round(original_count / total_time, 2),
             "metrics": {
                 "original_rows": original_count,
                 "final_rows": final_count,
@@ -158,90 +235,26 @@ def main(config_module: str):
             }
         }
         
-        # Save metadata
-        save_processing_metadata(cfg.OUTPUT_PATH, job_summary, logger)
+        # Gọi hàm xử lý lưu trữ tập trung
+        save_metrics(cfg, job_summary, logger)
         
-        # Log final summary
         logger.info("=" * 70)
-        logger.info("JOB COMPLETED SUCCESSFULLY")
+        logger.info("JOB PREPROCESSING COMPLETED SUCCESSFULLY")
         logger.info("=" * 70)
-        logger.info(f"Rows: {original_count:,} → {final_count:,} (removed {original_count - final_count:,})")
-        logger.info(f"Cols: {original_cols} → {final_cols}")
-        logger.info(f"Retention rate: {job_summary['metrics']['pct_rows_retained']:.2f}%")
-        logger.info(f"\nTiming breakdown:")
-        logger.info(f"  - Read: {read_time:.2f}s")
-        logger.info(f"  - Transform: {transform_time:.2f}s")
-        logger.info(f"  - Validation: {validation_time:.2f}s")
-        logger.info(f"  - Write: {write_time:.2f}s")
-        logger.info(f"  - Total: {total_time:.2f}s")
-        logger.info(f"\nProcessing rate: {original_count / total_time:.0f} rows/second")
-        logger.info("=" * 70)
-        
-        # Optional: save metrics to CSV for tracking
-        if hasattr(cfg, 'METRICS_LOG') and cfg.METRICS_LOG:
-            import os
-            os.makedirs(os.path.dirname(cfg.METRICS_LOG), exist_ok=True)
-            
-            import csv
-            file_exists = os.path.exists(cfg.METRICS_LOG)
-            with open(cfg.METRICS_LOG, 'a') as f:
-                writer = csv.writer(f)
-                if not file_exists:
-                    writer.writerow([
-                        'timestamp', 'app_name', 'original_rows', 'final_rows',
-                        'read_time', 'transform_time', 'write_time', 'total_time',
-                        'rows_per_second', 'validation_passed'
-                    ])
-                writer.writerow([
-                    datetime.now().isoformat(),
-                    cfg.APP_NAME,
-                    original_count,
-                    final_count,
-                    f"{read_time:.2f}",
-                    f"{transform_time:.2f}",
-                    f"{write_time:.2f}",
-                    f"{total_time:.2f}",
-                    f"{original_count / total_time:.0f}",
-                    len(critical_issues) == 0
-                ])
-            logger.info(f"Metrics logged to {cfg.METRICS_LOG}")
         
     except Exception as e:
-        logger.error(f"Job failed: {str(e)}", exc_info=True)
+        logger.error(f"Job failed during execution: {str(e)}", exc_info=True)
         sys.exit(1)
-    
+        
     finally:
         if 'spark' in locals():
-            time.sleep(600)
             spark.stop()
-            logger.info("Spark session stopped")
+            logger.info("Spark session cleanly stopped.")
 
-from pyspark.sql.functions import rand
-import threading
 
-def keep_executors_alive(spark, interval=10):
-    """
-    Run dummy Spark jobs to keep executors alive and generate metrics
-    """
-    def run():
-        while True:
-            try:
-                spark.range(1000000) \
-                    .repartition(8) \
-                    .select(rand()) \
-                    .count()
-                time.sleep(interval)
-            except Exception:
-                break
-
-    t = threading.Thread(target=run, daemon=True)
-    t.start()
-    
-    
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: spark-submit src/jobs/acn_processing_data.py <config_module>")
-        print("Example: spark-submit src/jobs/acn_processing_data.py configs.config_caltech")
         sys.exit(1)
-    
+        
     main(sys.argv[1])

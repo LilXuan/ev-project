@@ -1,0 +1,108 @@
+{
+    "app_name": "ACN_Caltech_Preprocessing_Local",
+    "experiment": "ACN_Caltech_Preprocessing_Local",
+    "timestamp": "2026-05-30T09:19:50.237436",
+    "dataset_size_mb": 1024,
+    "input_path": "hdfs://localhost:9000/data/benchmark/acn/500mb/",
+    "output_path": "hdfs://localhost:9000/ev-project/data/silver/ev_sessions/500mb",
+    "validation_passed": false,
+    "throughput_rows_per_second": 923.05,
+    "metrics": {
+        "original_rows": 785600,
+        "final_rows": 651358,
+        "rows_removed": 134242,
+        "pct_rows_retained": 82.91216904276986,
+        "original_columns": 17,
+        "final_columns": 19,
+        "columns_removed": -2
+    },
+    "timing": {
+        "read_time_seconds": 33.0416738986969,
+        "transform_time_seconds": 23.234939336776733,
+        "validation_time_seconds": 165.7609269618988,
+        "write_time_seconds": 615.1802999973297,
+        "total_time_seconds": 851.0892782211304
+    },
+    "processing_metadata": {
+        "outlier_bounds": {
+            "duration": {
+                "lower": -8.100138888888889,
+                "upper": 18.334305555555552
+            },
+            "charging_duration": {
+                "lower": -2.7915277777777776,
+                "upper": 7.702916666666667
+            },
+            "kWhDelivered": {
+                "lower": -9.917055092255856,
+                "upper": 24.536456143845108
+            }
+        }
+    },
+    "validation_results": {
+        "timestamp": "Column<'CAST(current_timestamp() AS STRING) AS timestamp'>",
+        "validations": {
+            "duration": {
+                "invalid_duration": 0,
+                "invalid_charging_duration": 0
+            },
+            "temporal": {
+                "invalid_hour": 0,
+                "invalid_day_of_week": 0,
+                "invalid_month": 0,
+                "weekend_mismatch": -1,
+                "holiday_mismatch": 0
+            },
+            "lag": {
+                "lag_1_nulls": 0,
+                "lag_1_negative": 0,
+                "lag_2_nulls": 0,
+                "lag_2_negative": 0,
+                "lag_3_nulls": 0,
+                "lag_3_negative": 0
+            },
+            "rolling": {
+                "rolling_3_nulls": 0,
+                "rolling_3_negative": 0,
+                "rolling_5_nulls": 0,
+                "rolling_5_negative": 0
+            },
+            "outliers": {
+                "rows_before": 785600,
+                "rows_after": 651358,
+                "rows_removed": 134242,
+                "pct_removed": 0.17087830957230143,
+                "duration_negative_after": 0,
+                "charging_duration_negative_after": 0,
+                "kWhDelivered_negative_after": -1
+            },
+            "final": {
+                "row_count": 651358,
+                "hour_nulls": 0,
+                "day_of_week_nulls": 0,
+                "month_nulls": 0,
+                "season_nulls": 0,
+                "duration_nulls": 0,
+                "charging_duration_nulls": 0,
+                "charging_duration_log_nulls": 0,
+                "hour_sin_nulls": 0,
+                "hour_cos_nulls": 0,
+                "day_of_year_nulls": 0,
+                "week_of_year_nulls": 0,
+                "is_holiday_nulls": 0,
+                "lag_1_log_nulls": 0,
+                "lag_2_log_nulls": 0,
+                "lag_3_log_nulls": 0,
+                "rolling_mean_3_log_nulls": 0,
+                "rolling_mean_5_log_nulls": 0,
+                "kWhDelivered_log_nulls": 0,
+                "negative_target": 0
+            }
+        }
+    },
+    "spark_config": {
+        "master": "spark://192.168.40.130:7077",
+        "app_id": "app-20260530090542-0002",
+        "default_parallelism": 8
+    }
+}
