@@ -1,10 +1,11 @@
-# configs/exp1_31k.py
+# configs/exp1_19mb.py
 import os
 
-APP_NAME = "ACN_Exp1_31k"
+APP_NAME = "ACN_Exp1_19MB"
+DATASET_SIZE_MB = 19
 INPUT_PATH = "hdfs://localhost:9000/ev-project/data/bronze/ev_sessions/caltech/*/*/*"
 OUTPUT_PATH = "hdfs://localhost:9000/ev-project/data/silver/ev_sessions/caltech"
-METRICS_LOG = "experiment_results.csv"
+RESULT_DIR = "results/loading"
 
 # Thông số Spark tối ưu cho bộ data này
 SPARK_CONF = {

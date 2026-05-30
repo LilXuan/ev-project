@@ -1,0 +1,18 @@
+{
+    "timestamp": "2026-05-30T06:35:11.822243",
+    "experiment": "ACN_Exp1_19MB",
+    "dataset_size_mb": 19,
+    "rows": 31424,
+    "read_time_sec": 47.84,
+    "write_time_sec": 10.801,
+    "throughput_read_rows_per_sec": 656.86,
+    "throughput_write_rows_per_sec": 2909.33,
+    "num_partitions": 34,
+    "input_path": "hdfs://localhost:9000/ev-project/data/bronze/ev_sessions/caltech/*/*/*",
+    "output_path": "hdfs://localhost:9000/ev-project/data/silver/ev_sessions/caltech",
+    "spark_conf": {
+        "spark.executor.memory": "2g",
+        "spark.executor.cores": "1",
+        "spark.sql.shuffle.partitions": "10"
+    }
+}
