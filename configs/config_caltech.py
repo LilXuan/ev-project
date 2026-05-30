@@ -6,12 +6,14 @@ APP_NAME = "ACN_Caltech_Preprocessing_Local"
 
 # Input: Parquet from silver layer (local path or HDFS)
 # INPUT_PATH = "hdfs://localhost:9000/ev-project/data/silver/ev_sessions/caltech/*"
-INPUT_PATH = "hdfs://localhost:9000/data/benchmark/acn/500mb/"
+#INPUT_PATH = "hdfs://localhost:9000/data/benchmark/acn/500mb/"
+INPUT_PATH = "hdfs://localhost:9000/data/benchmark/acn/1gb/"
 
 
 # Output: Processed data ready for analysis
 # OUTPUT_PATH = "hdfs://localhost:9000/ev-project/data/gold/ev_sessions/caltech_processed"
-OUTPUT_PATH = "hdfs://localhost:9000/ev-project/data/gold/500mb"
+# OUTPUT_PATH = "hdfs://localhost:9000/ev-project/data/gold/500mb"
+OUTPUT_PATH = "hdfs://localhost:9000/data/benchmark/acn/1gb/"
 
 
 # Training output paths
