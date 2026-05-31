@@ -10,7 +10,7 @@
 
 # Chạy scaling lên 1GB (Scale Factor 50, 12 Partitions)
 echo "Executing 1GB Scale Benchmark Job..."
-spark-submit src/jobs/acn_scaling_data.py 25 12
+spark-submit src/jobs/acn_scaling_data.py 50 12
 
 # Gợi ý: Nếu sau này cần chạy thử nghiệm 500MB, bạn chỉ cần gọi:
 # spark-submit src/jobs/acn_scaling_data.py 25 12

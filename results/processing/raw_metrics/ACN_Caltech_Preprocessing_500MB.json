@@ -1,41 +1,41 @@
 {
-    "app_name": "ACN_Caltech_Preprocessing_Local",
-    "experiment": "ACN_Caltech_Preprocessing_Local",
-    "timestamp": "2026-05-31T15:28:54.854959",
+    "app_name": "ACN_Caltech_Preprocessing_500MB",
+    "experiment": "ACN_Caltech_Preprocessing_500MB",
+    "timestamp": "2026-05-31T16:41:39.561826",
     "dataset_size_mb": 1024,
-    "input_path": "hdfs://localhost:9000/data/benchmark/acn/19mb/",
-    "output_path": "hdfs://localhost:9000/ev-project/data/silver/ev_sessions/19mb",
+    "input_path": "hdfs://localhost:9000/data/benchmark/acn/500mb/500mb",
+    "output_path": "hdfs://localhost:9000/ev-project/data/silver/ev_sessions/500mb",
     "validation_passed": false,
-    "throughput_rows_per_second": 46.74,
+    "throughput_rows_per_second": 913.43,
     "metrics": {
-        "original_rows": 31424,
-        "final_rows": 24690,
-        "rows_removed": 6734,
-        "pct_rows_retained": 78.57051934826885,
-        "original_columns": 15,
+        "original_rows": 785600,
+        "final_rows": 652365,
+        "rows_removed": 133235,
+        "pct_rows_retained": 83.04035132382892,
+        "original_columns": 17,
         "final_columns": 19,
-        "columns_removed": -4
+        "columns_removed": -2
     },
     "timing": {
-        "read_time_seconds": 22.906468152999878,
-        "transform_time_seconds": 7.931513071060181,
-        "validation_time_seconds": 31.641527891159058,
-        "write_time_seconds": 603.5714781284332,
-        "total_time_seconds": 672.2715399265289
+        "read_time_seconds": 36.45395088195801,
+        "transform_time_seconds": 25.214573621749878,
+        "validation_time_seconds": 168.54499077796936,
+        "write_time_seconds": 616.7186291217804,
+        "total_time_seconds": 860.0524835586548
     },
     "processing_metadata": {
         "outlier_bounds": {
             "duration": {
-                "lower": -7.968333333333334,
-                "upper": 18.21388888888889
+                "lower": -8.102361111111112,
+                "upper": 18.345416666666665
             },
             "charging_duration": {
-                "lower": -2.7383333333333333,
-                "upper": 7.648333333333333
+                "lower": -2.824027777777778,
+                "upper": 7.759305555555556
             },
             "kWhDelivered": {
-                "lower": -9.659500000000001,
-                "upper": 24.368500000000004
+                "lower": -9.961737014124022,
+                "upper": 24.60531293017134
             }
         }
     },
@@ -68,16 +68,16 @@
                 "rolling_5_negative": 0
             },
             "outliers": {
-                "rows_before": 31424,
-                "rows_after": 24690,
-                "rows_removed": 6734,
-                "pct_removed": 0.21429480651731161,
+                "rows_before": 785600,
+                "rows_after": 652365,
+                "rows_removed": 133235,
+                "pct_removed": 0.1695964867617108,
                 "duration_negative_after": 0,
                 "charging_duration_negative_after": 0,
                 "kWhDelivered_negative_after": -1
             },
             "final": {
-                "row_count": 24690,
+                "row_count": 652365,
                 "hour_nulls": 0,
                 "day_of_week_nulls": 0,
                 "month_nulls": 0,
@@ -102,7 +102,7 @@
     },
     "spark_config": {
         "master": "spark://192.168.40.130:7077",
-        "app_id": "app-20260531151744-0001",
+        "app_id": "app-20260531162722-0006",
         "default_parallelism": 8
     }
 }

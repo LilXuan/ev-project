@@ -1,0 +1,4 @@
+timestamp,experiment,split,dataset_size,train_fraction,seed,max_depth,max_iter,training_time_sec,rows,mae_log,rmse_log,r2_log,mae_kwh,rmse_kwh,r2_kwh,diff_mae_kwh,diff_rmse_kwh,mean_pct_error,outlier_pct
+2026-05-31T18:14:14.656565,ACN_Caltech_Training_1GB,Train,1305035,0.8,42,10,100,1510.28,1044416,0.1392,0.1963,0.923,1.1214,1.7617,0.8845,-1.5483,-2.1834,,
+2026-05-31T18:14:14.656565,ACN_Caltech_Training_1GB,Test,1305035,0.8,42,10,100,1510.28,260619,0.1426,0.2022,0.918,1.1506,1.82,0.8767,-1.5191,-2.1251,,
+2026-05-31T18:14:14.656565,ACN_Caltech_Training_1GB,Validation,1305035,0.8,42,10,100,1510.28,260619,,,,1.1506,1.82,,-1.5191,-2.1251,20.33,0.22

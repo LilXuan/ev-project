@@ -1,0 +1,71 @@
+{
+    "timestamp": "2026-05-31T17:10:45.933466",
+    "app_name": "ACN_Caltech_Training_500MB",
+    "dataset_size": 652365,
+    "train_rows": 522024,
+    "test_rows": 130341,
+    "training_time_sec": 1258.4413924217224,
+    "train_metrics": {
+        "rmse_log": 0.19637633976725863,
+        "mse_log": 0.0385636668203858,
+        "mae_log": 0.14021626086059416,
+        "r2_log": 0.922914494040049,
+        "mae_kwh": 1.1324188195526441,
+        "mse_kwh": 3.1470130012242716,
+        "rmse_kwh": 1.7739822437736719,
+        "r2_kwh": 0.8830906020236395,
+        "rows": 522024.0
+    },
+    "test_metrics": {
+        "rmse_log": 0.21045164244344944,
+        "mse_log": 0.044289893807145486,
+        "mae_log": 0.14856146752273527,
+        "r2_log": 0.911484422479558,
+        "mae_kwh": 1.1988120257510173,
+        "mse_kwh": 3.5679747356660427,
+        "rmse_kwh": 1.888908344961725,
+        "r2_kwh": 0.8675500874750846,
+        "rows": 130341.0
+    },
+    "differences": {
+        "diff_mae_kwh": -1.4708879742489829,
+        "diff_rmse_kwh": -2.0561916550382753,
+        "pct_diff_mae": -55.0956277577624,
+        "pct_diff_rmse": -52.12014030159629
+    },
+    "validation_results": {
+        "mean_absolute_error": 1.1988120257510173,
+        "rmse_error": 1.888908344961725,
+        "mean_percentage_error": 21.38565560701787,
+        "outliers_count": 335.0,
+        "outlier_percentage": 0.2570181293683492,
+        "total_rows": 130341.0,
+        "threshold_kwh": 10.0
+    },
+    "config": {
+        "train_fraction": 0.8,
+        "seed": 42,
+        "max_depth": 10,
+        "max_iter": 100,
+        "feature_cols": [
+            "hour",
+            "day_of_week",
+            "month",
+            "season",
+            "duration",
+            "charging_duration",
+            "charging_duration_log",
+            "hour_sin",
+            "hour_cos",
+            "day_of_year",
+            "week_of_year",
+            "is_holiday",
+            "lag_1_log",
+            "lag_2_log",
+            "lag_3_log",
+            "rolling_mean_3_log",
+            "rolling_mean_5_log"
+        ],
+        "target_col": "kWhDelivered_log"
+    }
+}

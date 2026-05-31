@@ -29,7 +29,7 @@ def save_metrics(cfg, metrics):
         json.dump(metrics, f, indent=4)
 
     # 2. Lưu file CSV tổng hợp để phục vụ thống kê, so sánh trong luận văn
-    csv_file = os.path.join(result_dir, "scaling_metrics.csv")
+    csv_file = os.path.join(result_dir, f"{cfg.APP_NAME}_SF_metrics.csv")
     file_exists = os.path.isfile(csv_file)
 
     with open(csv_file, "a", newline="") as f:

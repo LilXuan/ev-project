@@ -1,0 +1,22 @@
+{
+    "timestamp": "2026-05-31T15:11:39.565769",
+    "experiment": "ACN_Dataset_Scaling_1GB_SF_50",
+    "scale_factor": 50,
+    "approx_size_mb": 1024,
+    "input_rows": 31424,
+    "output_rows": 1571200,
+    "read_time_sec": 39.929,
+    "scaling_time_sec": 14.733,
+    "write_time_sec": 22.495,
+    "throughput_scaling_rows_per_sec": 106647.69,
+    "input_partitions": 34,
+    "output_partitions": 24,
+    "input_path": "hdfs://localhost:9000/ev-project/data/bronze/ev_sessions/caltech/*/*/*",
+    "output_path": "hdfs://localhost:9000/data/benchmark/acn/1gb/1gb",
+    "spark_conf": {
+        "spark.executor.memory": "1g",
+        "spark.driver.memory": "1g",
+        "spark.sql.shuffle.partitions": "12",
+        "spark.default.parallelism": "12"
+    }
+}

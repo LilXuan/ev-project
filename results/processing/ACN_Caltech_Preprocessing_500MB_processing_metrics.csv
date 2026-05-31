@@ -1,0 +1,2 @@
+timestamp,experiment,dataset_size_mb,original_rows,final_rows,rows_removed,pct_rows_retained,original_columns,final_columns,read_time_sec,transform_time_sec,validation_time_sec,write_time_sec,total_time_sec,throughput_rows_per_sec,validation_passed
+2026-05-31T16:41:39.561826,ACN_Caltech_Preprocessing_500MB,1024,785600,652365,133235,83.04,17,19,36.454,25.215,168.545,616.719,860.052,913.43,False

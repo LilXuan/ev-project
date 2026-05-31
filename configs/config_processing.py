@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 
-APP_NAME = "ACN_Caltech_Preprocessing_Local"
+APP_NAME = "ACN_Caltech_Preprocessing_1GB"
 
 #Cấu hình dynamic size label (phục vụ tự động nhận diện dung lượng đầu vào/đầu ra)
 DATASET_SIZE_MB = 1024  # Hoặc đổi thành 500 nếu test với tập 500MB
@@ -11,8 +11,8 @@ SIZE_LABEL = "1gb" if DATASET_SIZE_MB == 1024 else "500mb"
 # INPUT_PATH = f"hdfs://localhost:9000/data/benchmark/acn/{SIZE_LABEL}/"
 # OUTPUT_PATH = f"hdfs://localhost:9000/data/benchmark/acn/{SIZE_LABEL}_processed/"
 
-INPUT_PATH = "hdfs://localhost:9000/data/benchmark/acn/500mb/"
-OUTPUT_PATH = "hdfs://localhost:9000/ev-project/data/silver/ev_sessions/500mb"
+INPUT_PATH = "hdfs://localhost:9000/data/benchmark/acn/1gb/1gb"
+OUTPUT_PATH = "hdfs://localhost:9000/ev-project/data/silver/ev_sessions/1gb"
 
 
 # === ĐỒNG BỘ CẤU TRÚC ĐƯỜNG DẪN METRICS THEO CHUẨN MỚI ===
@@ -20,7 +20,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 RESULT_DIR = os.path.join(str(PROJECT_ROOT), "results", "processing")
 os.makedirs(RESULT_DIR, exist_ok=True)
 
-METRICS_LOG = os.path.join(RESULT_DIR, "processing_metrics.csv")
+METRICS_LOG = os.path.join(RESULT_DIR, f"{APP_NAME}_processing_metrics.csv")
 RESEARCH_LOG = os.path.join(RESULT_DIR, "raw_metrics", f"{APP_NAME}.json")
 # ========================================================
 

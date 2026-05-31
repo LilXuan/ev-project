@@ -1,12 +1,12 @@
 {
-    "app_name": "ACN_Caltech_Preprocessing_Local",
-    "experiment": "ACN_Caltech_Preprocessing_Local",
-    "timestamp": "2026-05-31T15:28:54.854959",
+    "app_name": "ACN_Caltech_Preprocessing_19MB",
+    "experiment": "ACN_Caltech_Preprocessing_19MB",
+    "timestamp": "2026-05-31T15:45:27.044459",
     "dataset_size_mb": 1024,
     "input_path": "hdfs://localhost:9000/data/benchmark/acn/19mb/",
     "output_path": "hdfs://localhost:9000/ev-project/data/silver/ev_sessions/19mb",
     "validation_passed": false,
-    "throughput_rows_per_second": 46.74,
+    "throughput_rows_per_second": 47.04,
     "metrics": {
         "original_rows": 31424,
         "final_rows": 24690,
@@ -17,11 +17,11 @@
         "columns_removed": -4
     },
     "timing": {
-        "read_time_seconds": 22.906468152999878,
-        "transform_time_seconds": 7.931513071060181,
-        "validation_time_seconds": 31.641527891159058,
-        "write_time_seconds": 603.5714781284332,
-        "total_time_seconds": 672.2715399265289
+        "read_time_seconds": 19.069339275360107,
+        "transform_time_seconds": 7.872037172317505,
+        "validation_time_seconds": 29.34229564666748,
+        "write_time_seconds": 603.9997427463531,
+        "total_time_seconds": 667.996889591217
     },
     "processing_metadata": {
         "outlier_bounds": {
@@ -102,7 +102,7 @@
     },
     "spark_config": {
         "master": "spark://192.168.40.130:7077",
-        "app_id": "app-20260531151744-0001",
+        "app_id": "app-20260531153421-0002",
         "default_parallelism": 8
     }
 }

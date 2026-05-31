@@ -15,14 +15,14 @@ TIME_COLUMNS = ['connectionTime', 'disconnectTime', 'doneChargingTime']
 # --- CORE FUNCTIONS ---
 
 def drop_id_columns(df):
-    """Step 2: Remove ID columns"""
+    """Step 1: Remove ID columns"""
     existing = [c for c in ID_COLUMNS if c in df.columns]
     if existing:
         df = df.drop(*existing)
     return df, existing
 
 def convert_time(df):
-    """Step 3: Convert to timezone-naive UTC"""
+    """Step 2: Convert to timezone-naive UTC"""
     for c in TIME_COLUMNS:
         if c in df.columns:
             df = df.withColumn(
@@ -36,7 +36,7 @@ def convert_time(df):
     return df
 
 def add_duration_features(df):
-    """Step 4: Duration and initial charging_duration_log"""
+    """Step 3: Duration and initial charging_duration_log"""
     # Tính duration (giờ)
     df = df.withColumn("duration", 
         (F.unix_timestamp(F.col("disconnectTime_utc")) - F.unix_timestamp(F.col("connectionTime_utc"))) / 3600
@@ -56,7 +56,7 @@ def add_duration_features(df):
     return df
 
 def add_temporal_features(df):
-    """Step 5: Temporal features and Cyclical encoding"""
+    """Step 4: Temporal features and Cyclical encoding"""
     df = df.withColumn("hour", F.hour(F.col("connectionTime_utc"))) \
            .withColumn("day_of_week", F.dayofweek(F.col("connectionTime_utc")) - 1) \
            .withColumn("month", F.month(F.col("connectionTime_utc"))) \
@@ -77,14 +77,14 @@ def add_temporal_features(df):
     return df
 
 def add_lag_features(df, lags=(1, 2, 3)):
-    """Step 6: Global lag features"""
+    """Step 5: Global lag features"""
     window_spec = Window.orderBy("connectionTime_utc")
     for lag_step in lags:
         df = df.withColumn(f"lag_{lag_step}_log", F.lag("charging_duration_log", lag_step).over(window_spec))
     return df
 
 def add_rolling_features(df, windows=(3, 5)):
-    """Step 7: Rolling mean features"""
+    """Step 6: Rolling mean features"""
     base_window = Window.orderBy("connectionTime_utc")
     for w in windows:
         window_spec = base_window.rowsBetween(-w, -1)
@@ -101,7 +101,7 @@ def compute_iqr_bounds(df, column: str) -> Tuple[float, float]:
     return q1 - 1.5 * iqr, q3 + 1.5 * iqr
 
 def remove_outliers_iqr(df, columns: List[str]):
-    """Step 8: Sequential Outlier Removal (Key to match Notebook)"""
+    """Step 7: Sequential Outlier Removal (Key to match Notebook)"""
     bounds_info = {}
     for col_name in columns:
         if col_name in df.columns:
@@ -112,7 +112,7 @@ def remove_outliers_iqr(df, columns: List[str]):
     return df, bounds_info
 
 def finalize_dataset(df):
-    """Step 9: Final Clean and Target Transform"""
+    """Step 8: Final Clean and Target Transform"""
     # 9.2: Filter NULLs for ALL critical columns
     critical_cols = [
         'kWhDelivered', 'duration', 'charging_duration_log', 

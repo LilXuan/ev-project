@@ -1,0 +1,2 @@
+timestamp,experiment,scale_factor,approx_size_mb,input_rows,output_rows,read_time_sec,scaling_time_sec,write_time_sec,throughput_scaling_rows_per_sec,input_partitions,output_partitions
+2026-05-31T15:04:15.302046,ACN_Dataset_Scaling_500MB_SF_25,25,500,31424,785600,34.419,10.418,12.446,75406.85,34,24

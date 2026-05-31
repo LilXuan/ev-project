@@ -1,2 +1,4 @@
 timestamp,experiment,dataset_size_mb,rows,read_time_sec,write_time_sec,throughput_read_rows_per_sec,throughput_write_rows_per_sec,num_partitions
 2026-05-30T06:35:11.822243,ACN_Exp1_19MB,19,31424,47.84,10.801,656.86,2909.33,34
+2026-05-31T14:35:30.210595,ACN_Exp1_19MB,19,31424,48.833,10.824,643.5,2903.2,34
+2026-05-31T14:54:26.693315,ACN_Exp1_19MB,19,31424,51.381,9.659,611.59,3253.38,34
